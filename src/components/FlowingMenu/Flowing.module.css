@@ -1,0 +1,17 @@
+.flowingMenuContainer {
+    height: 200px;
+    position: relative;
+    margin: 40px 0;
+}
+
+@media screen and (max-width: 768px) {
+    .flowingMenuContainer {
+        margin: 0;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .flowingMenuContainer {
+        display: none;
+    }
+} 

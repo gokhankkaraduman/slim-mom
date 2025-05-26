@@ -1,0 +1,298 @@
+/* HomePage.module.css */
+.strawberry,
+.banana,
+.backshadow,
+.leaf {
+    display: none;
+    position: absolute;
+}
+
+/* Default: Hide on small screens */
+@media screen and (max-width: 767px) {
+    .strawberry,
+    .banana,
+    .backshadow,
+    .leaf {
+        display: none;
+    }
+}
+
+.leafAlt {
+    display: none;
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    z-index: 0;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+.wave {
+    position: absolute;
+    top: 150px;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../../assets/images/wave.png');
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: contain;
+    opacity: var(--wave-opacity);
+    transition: opacity 0.3s ease;
+    max-width: 100vw;
+    overflow: hidden;
+}
+
+:global([data-theme="dark"]) .wave {
+    opacity: 0.03;
+}
+
+:global([data-theme="light"]) .wave {
+    opacity: 0.1;
+}
+
+/* Ensure the app container has proper overflow handling */
+/* Removed global App overflow - handled in App.css */
+
+.container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 1280px) {
+    .wave {
+        background-size: cover;
+        background-position: center right;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .background {
+        display: none;
+    }
+    
+    .wave {
+        display: none;
+    }
+    
+    :global([data-theme="dark"]) .wave {
+        display: none;
+    }
+    
+    :global([data-theme="light"]) .wave {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .background {
+        display: none;
+    }
+    
+    .wave {
+        display: none;
+    }
+    
+    :global([data-theme="dark"]) .wave {
+        display: none;
+    }
+    
+    :global([data-theme="light"]) .wave {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 768px) {
+
+    /*
+     .leafAlt{
+    display: block;
+    z-index: -3333;
+    position: absolute; 
+    left: 850px; 
+    top: -14vh;
+    width: 800px; 
+
+    animation: pulseScale  ease-in-out 4s;
+  } */
+
+    .strawberry {
+        display: block;
+        position: absolute;
+        right: 50px;
+        bottom: 200px;
+        z-index: 1;
+        animation: pulseScale ease-in-out 4s;
+    }
+
+    .banana {
+        display: block;
+        position: absolute;
+        bottom: -250px;
+        right: -10px;
+        z-index: 1;
+        width: 500px;
+    }
+
+    .backshadow {
+        display: block;
+        position: absolute;
+        right: -50px;
+        bottom: -200px;
+        z-index: 1;
+        width: max-content;
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    .leaf {
+        display: block;
+        position: absolute;
+        bottom: -180px;
+        right: 5vw;
+        z-index: 1;
+        transform: rotate(90deg);
+        width: 800px;
+        animation: pulseScale ease-in-out 4s;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .container {
+        overflow: hidden;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+
+    .strawberry {
+        top: 650px;
+        right: 10px;
+        width: 286px;
+        height: 253px;
+        animation: pulseScale ease-in-out 4s;
+        z-index: 100;
+    }
+
+    .backshadow {
+        top: 250px;
+        right: -30px;
+        width: 750px;
+        max-width: 100vw;
+    }
+
+    .banana {
+        top: 150px;
+        width: 773px;
+        right: -200px;
+        max-width: 100vw;
+    }
+
+    .leaf {
+        top: 100px;
+        right: 15vw;
+        width: 746px;
+        transform: rotate(360deg);
+        animation: pulseScale ease-in-out 4s;
+        max-width: 100vw;
+    }
+}
+
+@keyframes pulseScale {
+    0% {
+        transform: scale(0.75);
+    }
+    20% {
+        transform: scale(1.1);
+    }
+    40% {
+        transform: scale(0.75);
+    }
+    60% {
+        transform: scale(1.1);
+    }
+    80% {
+        transform: scale(0.75);
+    }
+    100% {
+        transform: scale(0.75);
+    }
+}
+
+/* Mobile background container - only for 768px and below */
+.mobileBackgroundContainer {
+    display: none;
+}
+
+.mobileLeaf,
+.mobileStrawberry {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .mobileBackgroundContainer {
+        display: block;
+        position: fixed;
+        bottom: 200px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 180px;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: transparent;
+    }
+
+    .mobileLeaf {
+        display: block;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        width: 120px;
+        height: auto;
+        opacity: 0.4;
+        z-index: 1;
+    }
+
+    .mobileStrawberry {
+        display: block;
+        position: absolute;
+        left: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 70px;
+        height: auto;
+        opacity: 0.5;
+        z-index: 1;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .mobileBackgroundContainer {
+        bottom: 150px;
+        height: 140px;
+    }
+
+    .mobileLeaf {
+        width: 100px;
+        right: 15px;
+    }
+
+    .mobileStrawberry {
+        width: 55px;
+        left: 20px;
+    }
+}
