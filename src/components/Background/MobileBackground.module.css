@@ -1,9 +1,10 @@
-/* Mobile Background Component - Only for 768px and below */
+/* Mobile Background Component - Only for 481px to 768px, hidden on 480px and below */
 .mobileContainer {
   display: none;
 }
 
-@media screen and (max-width: 768px) {
+/* Show only between 481px and 768px */
+@media screen and (min-width: 481px) and (max-width: 768px) {
   .mobileContainer {
     display: block;
     position: relative;
@@ -47,5 +48,12 @@
     width: 208px;
     height: 203px;
     z-index: 4;
+  }
+}
+
+/* Explicitly hide on 480px and below */
+@media screen and (max-width: 480px) {
+  .mobileContainer {
+    display: none !important;
   }
 } 
