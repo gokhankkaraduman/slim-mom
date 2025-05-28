@@ -129,11 +129,26 @@
     .menu__item {
         background: var(--bg-secondary);
     }
-    
+
     .marquee {
         background: var(--bg-secondary);
     }
-    
+
+    .marquee span {
+        color: var(--text-primary);
+    }
+}
+
+/* Add 1024px media query for tablet/mobile background */
+@media screen and (max-width: 1024px) {
+    .menu__item {
+        background: var(--bg-secondary);
+    }
+
+    .marquee {
+        background: var(--bg-secondary);
+    }
+
     .marquee span {
         color: var(--text-primary);
     }

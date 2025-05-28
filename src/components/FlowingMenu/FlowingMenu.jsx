@@ -15,7 +15,7 @@ function FlowingMenu({ items = [] }) {
   );
 }
 
-function MenuItem({ link, text, image }) {
+function MenuItem({ link, text, image, imageFallback }) {
   const itemRef = React.useRef(null);
   const marqueeRef = React.useRef(null);
   const marqueeInnerRef = React.useRef(null);
@@ -59,12 +59,15 @@ function MenuItem({ link, text, image }) {
       .to(marqueeInnerRef.current, { y: edge === 'top' ? '101%' : '-101%' }, 0);
   };
 
+  // Use WebP if supported, fallback to original format
+  const imageUrl = image || imageFallback;
+
   const repeatedMarqueeContent = Array.from({ length: 4 }).map((_, idx) => (
     <React.Fragment key={idx}>
       <span>{text}</span>
       <div
         className="marquee__img"
-        style={{ backgroundImage: `url(${image})` }}
+        style={{ backgroundImage: `url(${imageUrl})` }}
       />
     </React.Fragment>
   ));

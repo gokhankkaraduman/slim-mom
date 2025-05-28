@@ -4,6 +4,13 @@
     margin: 40px 0;
 }
 
+/* Add 1024px media query to remove margins */
+@media screen and (max-width: 1024px) {
+    .flowingMenuContainer {
+        margin: 0;
+    }
+}
+
 @media screen and (max-width: 768px) {
     .flowingMenuContainer {
         margin: 0;
@@ -14,4 +21,4 @@
     .flowingMenuContainer {
         display: none;
     }
-} 
+}

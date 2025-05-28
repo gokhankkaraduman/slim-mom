@@ -1,13 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/assets/favicon/32x32.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Slim Mom</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./src/assets/favicon/32x32.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slim Mom</title>
+
+  <!-- Preload critical resources for better LCP -->
+  <link rel="preload" href="./src/assets/image/strawberry.webp" as="image" type="image/webp">
+  <link rel="preload" href="./src/assets/image/strawberry.png" as="image" type="image/png">
+  <link rel="preload" href="./src/assets/image/healthyfood.webp" as="image" type="image/webp">
+  <link rel="preload" href="./src/assets/image/fit.webp" as="image" type="image/webp">
+  <link rel="preload" href="./src/assets/svg/background/banana.svg" as="image" type="image/svg+xml">
+  <link rel="preload" href="./src/assets/svg/background/leaf.svg" as="image" type="image/svg+xml">
+
+  <!-- DNS prefetch for external resources -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

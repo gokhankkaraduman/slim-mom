@@ -1,9 +1,9 @@
-/* Mobile Background Component - Only for 768px and below */
+/* Mobile Background Component - For 1024px and below (excluding very small screens) */
 .mobileContainer {
   display: none;
 }
 
-@media screen and (max-width: 768px) and (min-width: 429px) {
+@media screen and (max-width: 1024px) and (min-width: 429px) {
   .mobileContainer {
     display: block;
     position: relative;
@@ -47,6 +47,39 @@
     width: 208px;
     height: 203px;
     z-index: 4;
+  }
+}
+
+/* Tablet adjustments (769px to 1024px) */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+  .mobileContainer {
+    height: 600px;
+  }
+
+  .shadow {
+    width: 700px;
+    height: 900px;
+    right: -50px;
+  }
+
+  .leaf {
+    width: 600px;
+    height: 680px;
+    right: 250px;
+  }
+
+  .banana {
+    width: 700px;
+    height: 490px;
+    right: -100px;
+    top: 120px;
+  }
+
+  .strawberry {
+    width: 240px;
+    height: 235px;
+    right: 80px;
+    top: 20px;
   }
 }
 
