@@ -336,10 +336,49 @@ const ProfilePage = () => {
 
     const createdDate = new Date(user.createdAt);
     const currentDate = new Date();
+
+    // Reset time to start of day for accurate day calculation
+    createdDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
     const timeDifference = currentDate.getTime() - createdDate.getTime();
     const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
 
-    return daysDifference;
+    return Math.max(0, daysDifference);
+  };
+
+  // Get member since date from createdAt
+  const getMemberSinceDate = () => {
+    if (!user?.createdAt) return t('profile.unknown');
+
+    const createdDate = new Date(user.createdAt);
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    return createdDate.toLocaleDateString(undefined, options);
+  };
+
+  // Format member since display
+  const formatMemberSince = () => {
+    const daysActive = getDaysActive();
+    const memberSince = getMemberSinceDate();
+
+    // Use backend data as fallback if local calculation seems wrong
+    const backendDays = backendUserStats?.daysActive || 0;
+    const actualDaysActive = daysActive >= 0 ? daysActive : backendDays;
+
+    if (actualDaysActive === 0) {
+      return t('profile.joinedToday');
+    } else if (actualDaysActive === 1) {
+      return t('profile.joinedYesterday');
+    } else if (actualDaysActive < 30) {
+      return `${actualDaysActive} ${t('profile.daysAgo')}`;
+    } else {
+      return memberSince;
+    }
   };
 
   // Define all possible achievements with unlock requirements
@@ -668,36 +707,6 @@ const ProfilePage = () => {
       <FaFire />
     ];
     return icons[Math.floor(Math.random() * icons.length)];
-  };
-
-  // Calculate member since date from createdAt
-  const getMemberSinceDate = () => {
-    if (!user?.createdAt) return t('profile.unknown');
-
-    const createdDate = new Date(user.createdAt);
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-
-    return createdDate.toLocaleDateString(undefined, options);
-  };
-
-  // Format member since display
-  const formatMemberSince = () => {
-    const daysActive = getDaysActive();
-    const memberSince = getMemberSinceDate();
-
-    if (daysActive === 0) {
-      return t('profile.joinedToday');
-    } else if (daysActive === 1) {
-      return t('profile.joinedYesterday');
-    } else if (daysActive < 30) {
-      return `${daysActive} ${t('profile.daysAgo')}`;
-    } else {
-      return memberSince;
-    }
   };
 
   // Convert blood type number to display format

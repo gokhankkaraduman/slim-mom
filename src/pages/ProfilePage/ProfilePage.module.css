@@ -1469,6 +1469,16 @@
   animation: dashboardSlideIn 1s ease-out;
 }
 
+/* Dark theme support for personal info dashboard */
+[data-theme="dark"] .personalInfoDashboard {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #0f172a 100%);
+  border: 2px solid rgba(252, 132, 45, 0.3);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 60px rgba(252, 132, 45, 0.1);
+}
+
 .personalInfoDashboard::before {
   content: '';
   position: absolute;
@@ -1480,16 +1490,8 @@
   animation: neonFlow 3s infinite;
 }
 
-.personalInfoDashboard::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(from 0deg, transparent, rgba(252, 132, 45, 0.03), transparent);
-  animation: cosmicRotation 20s linear infinite;
-  z-index: 0;
+[data-theme="dark"] .personalInfoDashboard::before {
+  background: linear-gradient(90deg, transparent, rgba(252, 132, 45, 0.1), transparent);
 }
 
 /* Dashboard Header */
@@ -1531,6 +1533,10 @@
   font-weight: 700;
   margin: 0;
   text-shadow: none;
+}
+
+[data-theme="dark"] .headerText h3 {
+  color: #f9fafb;
 }
 
 .dashboardSubtitle {
@@ -1608,6 +1614,10 @@
   backdrop-filter: blur(10px);
   animation: hexagonSlideIn 0.8s ease-out;
   animation-fill-mode: both;
+}
+
+[data-theme="dark"] .hexagonCard {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.95));
 }
 
 .hexagonCard::before {
@@ -1739,6 +1749,10 @@
   letter-spacing: 1px;
 }
 
+[data-theme="dark"] .hexagonData h4 {
+  color: #f9fafb;
+}
+
 .dataPoint {
   display: flex;
   justify-content: space-between;
@@ -1746,6 +1760,10 @@
   margin-bottom: 0.8rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .dataPoint {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dataPoint:last-child {
@@ -1759,11 +1777,19 @@
   font-weight: 500;
 }
 
+[data-theme="dark"] .dataLabel {
+  color: #9ca3af;
+}
+
 .dataValue {
   color: #1f2937;
   font-size: 0.9rem;
   font-weight: 600;
   text-align: right;
+}
+
+[data-theme="dark"] .dataValue {
+  color: #f3f4f6;
 }
 
 /* Dashboard Footer */
@@ -1782,6 +1808,11 @@
   border-radius: 15px;
   border: 1px solid rgba(252, 132, 45, 0.2);
   backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .footerContent {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid rgba(252, 132, 45, 0.3);
 }
 
 .securityBadge {
