@@ -8,7 +8,7 @@
 - 🇷🇺 **[Русский](README-RU.md)**
 
 ## 🌐 Canlı Demo
-🚀 **[Slim Mom'u Şimdi Deneyin](https://slim-mom-frontend.vercel.app)** - Tam uygulamayı deneyimleyin!
+🚀 **[Slim Mom'u Şimdi Deneyin](https://slim-mom-pi.vercel.app)** - Tam uygulamayı deneyimleyin!
 
 ---
 
@@ -533,8 +533,8 @@ işlem yapma izni ücretsiz olarak verilir.
 ## 📞 İletişim & Destek
 
 ### Resmi Kanallar
-- **🌐 Website**: [slim-mom-frontend.vercel.app](https://slim-mom-frontend.vercel.app)
-- **📧 Email**: support@slimmom.com
+- **🌐 Website**: [slim-mom-pi.vercel.app](https://slim-mom-pi.vercel.app)
+- **📧 Email**: gokhan.kkaraduman3@gmail.com
 - **💻 GitHub**: [gokhankkaraduman/slim-mom](https://github.com/gokhankkaraduman/slim-mom)
 - **📱 Issues**: [GitHub Issues](https://github.com/gokhankkaraduman/slim-mom/issues)
 

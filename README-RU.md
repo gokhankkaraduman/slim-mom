@@ -8,7 +8,7 @@
 - 🇹🇷 **[Türkçe](README-TR.md)**
 
 ## 🌐 Живая Демонстрация
-🚀 **[Попробуйте Slim Mom Сейчас](https://slim-mom-frontend.vercel.app)** - Испытайте полное приложение!
+🚀 **[Попробуйте Slim Mom Сейчас](https://slim-mom-pi.vercel.app)** - Испытайте полное приложение!
 
 ---
 
@@ -533,8 +533,8 @@ Copyright (c) 2025 Команда Разработчиков Slim Mom
 ## 📞 Контакты и Поддержка
 
 ### Официальные Каналы
-- **🌐 Веб-сайт**: [slim-mom-frontend.vercel.app](https://slim-mom-frontend.vercel.app)
-- **📧 Email**: support@slimmom.com
+- **🌐 Веб-сайт**: [slim-mom-pi.vercel.app](https://slim-mom-pi.vercel.app)
+- **📧 Email**: gokhan.kkaraduman3@gmail.com
 - **💻 GitHub**: [gokhankkaraduman/slim-mom](https://github.com/gokhankkaraduman/slim-mom)
 - **📱 Issues**: [GitHub Issues](https://github.com/gokhankkaraduman/slim-mom/issues)
 

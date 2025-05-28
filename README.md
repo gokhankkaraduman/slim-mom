@@ -8,7 +8,7 @@
 - 🇷🇺 **[Русский](README-RU.md)**
 
 ## 🌐 Live Demo
-🚀 **[Try Slim Mom Now](https://slim-mom-frontend.vercel.app)** - Experience the full application!
+🚀 **[Try Slim Mom Now](https://slim-mom-pi.vercel.app)** - Experience the full application!
 
 ---
 
@@ -537,8 +537,8 @@ copies or substantial portions of the Software.
 ## 📞 Contact & Support
 
 ### Official Channels
-- **🌐 Website**: [slim-mom-frontend.vercel.app](https://slim-mom-frontend.vercel.app)
-- **📧 Email**: support@slimmom.com
+- **🌐 Website**: [slim-mom-pi.vercel.app](https://slim-mom-pi.vercel.app)
+- **📧 Email**: gokhan.kkaraduman3@gmail.com
 - **💻 GitHub**: [gokhankkaraduman/slim-mom](https://github.com/gokhankkaraduman/slim-mom)
 - **📱 Issues**: [GitHub Issues](https://github.com/gokhankkaraduman/slim-mom/issues)
 
