@@ -3,7 +3,7 @@
   display: none;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 768px) and (min-width: 429px) {
   .mobileContainer {
     display: block;
     position: relative;
@@ -48,4 +48,11 @@
     height: 203px;
     z-index: 4;
   }
-} 
+}
+
+/* Hide mobile background at 428px and below */
+@media screen and (max-width: 428px) {
+  .mobileContainer {
+    display: none !important;
+  }
+}

@@ -1,5 +1,6 @@
 {
   "navigation": {
+    "home": "Home",
     "diary": "Diary",
     "calculator": "Calculator",
     "profile": "Profile",
@@ -121,7 +122,7 @@
     "totalEntries": "Total Entries",
     "greetings": {
       "goodMorning": "Good Morning",
-      "goodAfternoon": "Good Afternoon", 
+      "goodAfternoon": "Good Afternoon",
       "goodEvening": "Good Evening",
       "goodNight": "Good Night"
     },
@@ -160,11 +161,20 @@
     "builtWithLove": "Built with love by GO IT",
     "students": "students",
     "close": "Close",
-    "animatedWords": ["Students", "Developers", "Programmers", "Creators", "Innovators", "Thinkers", "Dreamers", "Builders"]
+    "animatedWords": [
+      "Students",
+      "Developers",
+      "Programmers",
+      "Creators",
+      "Innovators",
+      "Thinkers",
+      "Dreamers",
+      "Builders"
+    ]
   },
   "bloodTypes": {
     "1": "A",
-    "2": "B", 
+    "2": "B",
     "3": "AB",
     "4": "0"
   },
@@ -204,4 +214,4 @@
     "goBack": "Go Back",
     "motivation": "Healthy living is not a goal, it's a lifestyle! 🌱"
   }
-} 
+}

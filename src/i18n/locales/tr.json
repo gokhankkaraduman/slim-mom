@@ -1,5 +1,6 @@
 {
   "navigation": {
+    "home": "Ana Sayfa",
     "diary": "Günlük",
     "calculator": "Hesaplayıcı",
     "profile": "Profil",
@@ -121,7 +122,7 @@
     "totalEntries": "Toplam Giriş",
     "greetings": {
       "goodMorning": "Günaydın",
-      "goodAfternoon": "İyi Öğleden Sonralar", 
+      "goodAfternoon": "İyi Öğleden Sonralar",
       "goodEvening": "İyi Akşamlar",
       "goodNight": "İyi Geceler"
     },
@@ -160,12 +161,21 @@
     "students": "öğrencileri",
     "byStudents": "tarafından sevgiyle yapıldı",
     "close": "Kapat",
-    "animatedWords": ["Öğrenciler", "Geliştiriciler", "Programcılar", "Yaratıcılar", "Yenilikçiler", "Düşünürler", "Hayalciler", "İnşacılar"]
+    "animatedWords": [
+      "Öğrenciler",
+      "Geliştiriciler",
+      "Programcılar",
+      "Yaratıcılar",
+      "Yenilikçiler",
+      "Düşünürler",
+      "Hayalciler",
+      "İnşacılar"
+    ]
   },
   "bloodTypes": {
     "1": "A",
     "2": "B",
-    "3": "AB", 
+    "3": "AB",
     "4": "0"
   },
   "validation": {
@@ -204,4 +214,4 @@
     "goBack": "Geri Dön",
     "motivation": "Sağlıklı yaşam bir hedef değil, yaşam tarzıdır! 🌱"
   }
-} 
+}
