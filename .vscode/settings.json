@@ -1,0 +1,14 @@
+{
+  "workbench.name": "Slim Mom",
+  "workbench.colorTheme": "Default Dark+",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "files.associations": {
+    "*.jsx": "javascriptreact"
+  }
+}

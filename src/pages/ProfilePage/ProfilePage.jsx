@@ -14,43 +14,66 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { 
-  FaUser, 
-  FaWeight, 
-  FaTrophy, 
-  FaFire, 
-  FaCalendarAlt, 
+import {
+  FaUser,
+  FaWeight,
+  FaTrophy,
+  FaFire,
+  FaCalendarAlt,
   FaChartLine,
   FaMedal,
   FaBullseye,
-  FaHeart
+  FaHeart,
+  FaUserCircle,
+  FaCrown,
+  FaIdCard,
+  FaRocket,
+  FaSun,
+  FaMoon,
+  FaStar,
+  FaLock,
+  FaCalendarCheck,
+  FaUtensils,
+  FaBalanceScale,
+  FaAward,
+  FaGem,
+  FaLightbulb,
+  FaBolt,
+  FaAppleAlt
 } from 'react-icons/fa';
+import {
+  HiSparkles
+} from 'react-icons/hi';
+import {
+  IoSunny,
+  IoMoon
+} from 'react-icons/io5';
+
 import styles from './ProfilePage.module.css';
 import { selectUser } from '../../redux/auth/authSelectors';
-import { 
-  selectWeeklyCalories, 
-  selectWeightProgress, 
+import {
+  selectWeeklyCalories,
+  selectWeightProgress,
   selectUserStats,
   selectDailyRate,
   selectActivityStats,
   selectWeightHistory,
   selectMacroBreakdown,
   selectUserAchievements,
-  selectDetailedWeeklyData,
   selectEnhancedUserStats,
   selectFormattedWeightHistory,
   selectFormattedMacroData,
   selectProductsLoading,
 } from '../../redux/products/productSelectors';
-import { 
-  getWeeklyCalories, 
-  getWeightProgress, 
+import {
+  getWeeklyCalories,
+  getWeightProgress,
   getUserActivityStats,
   getWeightHistory,
   getMacroBreakdown,
   getUserAchievements,
-  getDetailedWeeklyCalories,
-  getUserStatsFromBackend,
+  getComprehensiveStats,
+  getUserStats,
 } from '../../redux/products/productOperation';
 import Loader from '../../components/Loader/Loader.jsx';
 
@@ -70,7 +93,7 @@ const ProfilePage = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  
+
   // Safety checks for user and userInfo
   const userInfo = user?.infouser || {
     currentWeight: null,
@@ -80,7 +103,7 @@ const ProfilePage = () => {
     bloodType: null,
     dailyRate: null,
   };
-  
+
   // Backend data selectors
   const weeklyCaloriesData = useSelector(selectWeeklyCalories);
   const weightProgressData = useSelector(selectWeightProgress);
@@ -92,25 +115,29 @@ const ProfilePage = () => {
   const macroBreakdown = useSelector(selectMacroBreakdown);
   const formattedMacroData = useSelector(selectFormattedMacroData);
   const userAchievements = useSelector(selectUserAchievements);
-  const detailedWeeklyData = useSelector(selectDetailedWeeklyData);
   const dailyRate = useSelector(selectDailyRate);
   const isLoading = useSelector(selectProductsLoading);
-  
+
+  // Get backendUserStats from Redux state directly
+  const backendUserStats = useSelector(state => state.products.backendUserStats);
+
   const [activeTab, setActiveTab] = useState('overview');
 
   // Fetch all data when component mounts
   useEffect(() => {
-    // Try to get comprehensive data from backend first
-    dispatch(getUserStatsFromBackend());
+    console.log('ProfilePage: Fetching data from backend endpoints...');
+
+    // Primary data sources - new backend endpoints
+    dispatch(getComprehensiveStats());
+    dispatch(getUserStats());
     dispatch(getUserActivityStats());
     dispatch(getWeightHistory());
+    dispatch(getWeightProgress());
     dispatch(getMacroBreakdown('7days'));
     dispatch(getUserAchievements());
-    dispatch(getDetailedWeeklyCalories());
-    
-    // Fallback to manual calculations if backend endpoints don't exist
+
+    // Legacy endpoints for compatibility
     dispatch(getWeeklyCalories());
-    dispatch(getWeightProgress());
   }, [dispatch]);
 
   const [weeklyData, setWeeklyData] = useState({
@@ -183,13 +210,11 @@ const ProfilePage = () => {
 
   // Update chart data when backend data arrives
   useEffect(() => {
-    // Use detailed weekly data if available, otherwise fallback to simple weekly data
-    const weeklySource = detailedWeeklyData.length > 0 ? detailedWeeklyData : weeklyCaloriesData;
-    
-    if (weeklySource && weeklySource.length > 0) {
-      const caloriesData = weeklySource.map(day => day.calories || 0);
-      const goalData = new Array(7).fill(dailyRate || userInfo?.dailyRate || enhancedUserStats.averageDailyCalories || 1850);
-      
+    // Use weekly calories data from backend
+    if (weeklyCaloriesData && weeklyCaloriesData.length > 0) {
+      const caloriesData = weeklyCaloriesData.map(day => day.calories || 0);
+      const goalData = new Array(7).fill(dailyRate || userInfo?.dailyRate || backendUserStats?.averageDailyCalories || 1850);
+
       setWeeklyData(prev => ({
         ...prev,
         datasets: [
@@ -223,16 +248,16 @@ const ProfilePage = () => {
         ]
       }));
     }
-  }, [weeklyCaloriesData, detailedWeeklyData, dailyRate, userInfo?.dailyRate, enhancedUserStats.averageDailyCalories, t]);
+  }, [weeklyCaloriesData, dailyRate, userInfo?.dailyRate, backendUserStats?.averageDailyCalories, t]);
 
   useEffect(() => {
     // Use formatted weight history from backend if available
     const weightSource = formattedWeightHistory.length > 0 ? formattedWeightHistory : weightProgressData;
-    
+
     if (weightSource && weightSource.length > 0) {
       const weightData = weightSource.map(week => week.weight);
       const labels = weightSource.map((week, index) => week.week || `Week ${index + 1}`);
-      
+
       setWeightProgress(prev => ({
         labels: labels,
         datasets: [
@@ -252,125 +277,178 @@ const ProfilePage = () => {
   }, [weightProgressData, formattedWeightHistory, t]);
 
   useEffect(() => {
-    // Use backend macro data if available
-    if (formattedMacroData && formattedMacroData.data.length > 0) {
-      setMacroData(prev => ({
-        labels: [t('profile.carbs'), t('profile.protein'), t('profile.fat')],
-        datasets: [
-          {
-            ...prev.datasets[0],
-            data: formattedMacroData.data,
-            backgroundColor: [
-              '#FC842D',  // Orange for carbs
-              '#2ecc71',  // Green for protein  
-              '#e74c3c'   // Red for fat
-            ],
-            hoverBackgroundColor: [
-              '#e87728',  // Darker orange
-              '#27ae60',  // Darker green
-              '#c0392b'   // Darker red
-            ],
-            borderWidth: 3,
-            borderColor: '#ffffff',
-            hoverBorderWidth: 4,
-          }
-        ]
-      }));
-    } else {
-      // Fallback to default values
-      setMacroData(prev => ({
-        ...prev,
-        labels: [t('profile.carbs'), t('profile.protein'), t('profile.fat')],
-        datasets: [
-          {
-            ...prev.datasets[0],
-            backgroundColor: [
-              '#FC842D',  // Orange for carbs
-              '#2ecc71',  // Green for protein  
-              '#e74c3c'   // Red for fat
-            ],
-            hoverBackgroundColor: [
-              '#e87728',  // Darker orange
-              '#27ae60',  // Darker green
-              '#c0392b'   // Darker red
-            ],
-            borderWidth: 3,
-            borderColor: '#ffffff',
-            hoverBorderWidth: 4,
-          }
-        ]
-      }));
-    }
-  }, [formattedMacroData, t]);
+    // Use real backend macro breakdown data
+    if (macroBreakdown && (macroBreakdown.carbs > 0 || macroBreakdown.protein > 0 || macroBreakdown.fat > 0)) {
+      const totalMacros = macroBreakdown.carbs + macroBreakdown.protein + macroBreakdown.fat;
 
-  // Use backend achievements if available, otherwise fallback to calculated ones
-  const achievements = userAchievements.length > 0 ? userAchievements : [
-    { 
-      id: 1, 
-      name: 'firstWeek', 
-      icon: '🎯', 
-      earned: enhancedUserStats.daysActive >= 7 || enhancedUserStats.totalDays >= 7,
-      description: t('profile.firstWeekDesc'),
+      if (totalMacros > 0) {
+        // Calculate percentages for the pie chart
+        const carbsPercentage = ((macroBreakdown.carbs / totalMacros) * 100).toFixed(1);
+        const proteinPercentage = ((macroBreakdown.protein / totalMacros) * 100).toFixed(1);
+        const fatPercentage = ((macroBreakdown.fat / totalMacros) * 100).toFixed(1);
+
+        setMacroData({
+          labels: [
+            `${t('profile.carbs')} (${carbsPercentage}%)`,
+            `${t('profile.protein')} (${proteinPercentage}%)`,
+            `${t('profile.fat')} (${fatPercentage}%)`
+          ],
+          datasets: [
+            {
+              data: [macroBreakdown.carbs, macroBreakdown.protein, macroBreakdown.fat],
+              backgroundColor: [
+                '#FC842D',  // Orange for carbs
+                '#2ecc71',  // Green for protein  
+                '#e74c3c'   // Red for fat
+              ],
+              hoverBackgroundColor: [
+                '#e87728',  // Darker orange
+                '#27ae60',  // Darker green
+                '#c0392b'   // Darker red
+              ],
+              borderWidth: 3,
+              borderColor: '#ffffff',
+              hoverBorderWidth: 4,
+            }
+          ]
+        });
+      }
+    } else {
+      // Show placeholder when no data available
+      setMacroData({
+        labels: [t('profile.noDataAvailable')],
+        datasets: [
+          {
+            data: [1],
+            backgroundColor: ['#e0e0e0'],
+            hoverBackgroundColor: ['#d0d0d0'],
+            borderWidth: 3,
+            borderColor: '#ffffff',
+          }
+        ]
+      });
+    }
+  }, [macroBreakdown, t]);
+
+  // Calculate days active since registration
+  const getDaysActive = () => {
+    if (!user?.createdAt) return 0;
+
+    const createdDate = new Date(user.createdAt);
+    const currentDate = new Date();
+    const timeDifference = currentDate.getTime() - createdDate.getTime();
+    const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
+
+    return daysDifference;
+  };
+
+  // Define all possible achievements with unlock requirements
+  const allPossibleAchievements = [
+    {
+      id: 'firstWeek',
+      name: 'firstWeek',
+      icon: <FaStar />,
+      requirement: t('profile.firstWeekDesc'),
+      progress: getDaysActive() >= 7 ? 100 : Math.round((getDaysActive() / 7) * 100),
+      earned: getDaysActive() >= 7,
+      category: 'time'
     },
-    { 
-      id: 2, 
-      name: 'streakMaster', 
-      icon: '🔥', 
-      earned: enhancedUserStats.streak >= 7 || enhancedUserStats.currentStreak >= 7,
-      description: t('profile.streakMasterDesc'),
+    {
+      id: 'streakMaster',
+      name: 'streakMaster',
+      icon: <FaFire />,
+      requirement: t('profile.streakMasterDesc'),
+      progress: Math.min(100, Math.round(((backendUserStats?.streak || 0) / 7) * 100)),
+      earned: (backendUserStats?.streak || 0) >= 7,
+      category: 'consistency'
     },
-    { 
-      id: 3, 
-      name: 'goalReacher', 
-      icon: '🏆', 
-      earned: enhancedUserStats.streak >= 30 || enhancedUserStats.bestStreak >= 30,
-      description: t('profile.goalReacherDesc'),
+    {
+      id: 'goalReacher',
+      name: 'goalReacher',
+      icon: <FaBullseye />,
+      requirement: t('profile.goalReacherDesc'),
+      progress: Math.min(100, Math.round(((backendUserStats?.streak || 0) / 30) * 100)),
+      earned: (backendUserStats?.streak || 0) >= 30,
+      category: 'consistency'
     },
-    { 
-      id: 4, 
-      name: 'healthyEater', 
-      icon: '🥗', 
-      earned: enhancedUserStats.totalEntries >= 50,
-      description: t('profile.healthyEaterDesc'),
+    {
+      id: 'healthyEater',
+      name: 'healthyEater',
+      icon: <FaAppleAlt />,
+      requirement: t('profile.healthyEaterDesc'),
+      progress: Math.min(100, Math.round(((backendUserStats?.totalEntries || 0) / 50) * 100)),
+      earned: (backendUserStats?.totalEntries || 0) >= 50,
+      category: 'activity'
     },
-    { 
-      id: 5, 
-      name: 'weightLoss5kg', 
-      icon: '⚖️', 
-      earned: enhancedUserStats.weightLoss >= 5,
-      description: t('profile.weightLoss5kgDesc'),
+    {
+      id: 'weightLoss5kg',
+      name: 'weightLoss5kg',
+      icon: <FaBalanceScale />,
+      requirement: t('profile.weightLoss5kgDesc'),
+      progress: Math.min(100, Math.round(((backendUserStats?.weightLoss || 0) / 5) * 100)),
+      earned: (backendUserStats?.weightLoss || 0) >= 5,
+      category: 'weight'
     },
-    { 
-      id: 6, 
-      name: 'monthlyChamp', 
-      icon: '👑', 
-      earned: enhancedUserStats.daysActive >= 30 || enhancedUserStats.totalDays >= 30,
-      description: t('profile.monthlyChampDesc'),
-    },
+    {
+      id: 'monthlyChamp',
+      name: 'monthlyChamp',
+      icon: <FaCrown />,
+      requirement: t('profile.monthlyChampDesc'),
+      progress: Math.min(100, Math.round(((backendUserStats?.daysActive || 0) / 30) * 100)),
+      earned: (backendUserStats?.daysActive || 0) >= 30,
+      category: 'time'
+    }
   ];
+
+  // Combine earned achievements from backend with progress on unearned ones
+  const combinedAchievements = allPossibleAchievements.map(possibleAchievement => {
+    // Güvenli array kontrolü
+    const achievementsArray = Array.isArray(userAchievements) ? userAchievements : [];
+
+    const earnedAchievement = achievementsArray.find(earned =>
+      earned.title?.toLowerCase().includes(possibleAchievement.id.toLowerCase()) ||
+      earned.id === possibleAchievement.id
+    );
+
+    if (earnedAchievement) {
+      return {
+        ...possibleAchievement,
+        earned: true,
+        unlockedAt: earnedAchievement.unlockedAt,
+        description: earnedAchievement.description
+      };
+    }
+
+    return possibleAchievement;
+  });
+
+  // Use backend achievements if available, otherwise show calculated ones
+  const achievements = Array.isArray(userAchievements) && userAchievements.length > 0
+    ? combinedAchievements
+    : allPossibleAchievements;
 
   const calculateBMI = () => {
     const height = userInfo?.height || 0;
     const weight = userInfo?.currentWeight || 0;
-    
+
     if (height > 0 && weight > 0) {
       const heightInM = height / 100;
       const bmi = weight / (heightInM * heightInM);
-      
+
       // BMI'nin mantıklı bir değer olup olmadığını kontrol et
       if (isNaN(bmi) || !isFinite(bmi)) {
-        return (enhancedUserStats?.bmi || userStats?.bmi || 24.1).toFixed(1);
+        return (backendUserStats?.bmi || userStats?.bmi || 24.1).toFixed(1);
       }
-      
+
       return bmi.toFixed(1);
     }
-    
-    return (enhancedUserStats?.bmi || userStats?.bmi || 24.1).toFixed(1);
+
+    return (backendUserStats?.bmi || userStats?.bmi || 24.1).toFixed(1);
   };
 
   const getBMICategory = (bmi) => {
     const numericBMI = parseFloat(bmi) || 24.1;
-    
+
     if (numericBMI < 18.5) return { category: t('profile.underweight'), color: '#3498db' };
     if (numericBMI < 25) return { category: t('profile.normal'), color: '#2ecc71' };
     if (numericBMI < 30) return { category: t('profile.overweight'), color: '#f39c12' };
@@ -381,24 +459,24 @@ const ProfilePage = () => {
     // Güvenli değer kontrolü
     const currentWeight = userInfo?.currentWeight || 0;
     const desiredWeight = userInfo?.desireWeight || 0;
-    const weightLoss = enhancedUserStats?.weightLoss || 0;
-    
+    const weightLoss = backendUserStats?.weightLoss || userStats?.weightLoss || 0;
+
     // Eğer gerekli değerler yoksa 0 döndür
     if (!currentWeight || !desiredWeight || currentWeight <= desiredWeight) {
       return 0;
     }
-    
+
     // Toplam hedef kilo kaybı
     const totalWeightToLose = currentWeight - desiredWeight;
-    
+
     // Eğer toplam hedef 0 veya negatifse 0 döndür
     if (totalWeightToLose <= 0) {
       return 0;
     }
-    
+
     // İlerleme yüzdesi hesapla
     const progressPercentage = (weightLoss / totalWeightToLose) * 100;
-    
+
     // 0-100 arasında sınırla
     return Math.max(0, Math.min(100, progressPercentage));
   };
@@ -532,7 +610,7 @@ const ProfilePage = () => {
         },
         padding: 12,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const label = context.label || '';
             const value = context.parsed || 0;
             const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -556,79 +634,139 @@ const ProfilePage = () => {
     }
   };
 
-  // Get time-based greeting
+  // Get time-based greeting with icon
   const getTimeBasedGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return '🌅 Good Morning';
-    if (hour < 17) return '☀️ Good Afternoon';
-    if (hour < 21) return '🌆 Good Evening';
-    return '🌙 Good Night';
+    if (hour < 12) return { text: t('profile.greetings.goodMorning'), icon: <IoSunny /> };
+    if (hour < 17) return { text: t('profile.greetings.goodAfternoon'), icon: <FaSun /> };
+    if (hour < 21) return { text: t('profile.greetings.goodEvening'), icon: <FaMoon /> };
+    return { text: t('profile.greetings.goodNight'), icon: <IoMoon /> };
   };
 
-  // Get motivational message based on user progress
+  // Get motivational message with icon based on user progress
   const getMotivationalMessage = () => {
-    const streak = enhancedUserStats.streak || enhancedUserStats.currentStreak || 0;
-    const weightLoss = enhancedUserStats.weightLoss || 0;
-    
-    if (streak >= 30) return "🔥 You're on fire! Amazing consistency!";
-    if (streak >= 7) return "💪 Great streak! Keep it up!";
-    if (weightLoss >= 5) return "🎉 Fantastic progress on your journey!";
-    if (weightLoss > 0) return "⭐ Every step counts! You're doing great!";
-    return "🚀 Ready to crush your goals today?";
+    const streak = backendUserStats?.streak || backendUserStats?.currentStreak || activityStats?.currentStreak || 0;
+    const weightLoss = backendUserStats?.weightLoss || userStats?.weightLoss || 0;
+
+    if (streak >= 30) return { text: t('profile.motivational.onFire'), icon: <FaFire /> };
+    if (streak >= 7) return { text: t('profile.motivational.greatStreak'), icon: <FaTrophy /> };
+    if (weightLoss >= 5) return { text: t('profile.motivational.fantasticProgress'), icon: <FaStar /> };
+    if (weightLoss > 0) return { text: t('profile.motivational.everyStepCounts'), icon: <FaHeart /> };
+    return { text: t('profile.motivational.readyToCrush'), icon: <FaRocket /> };
   };
 
-  // Get random encouraging emoji
-  const getRandomEmoji = () => {
-    const emojis = ['✨', '🌟', '💫', '⚡', '🎯', '🏆', '💎', '🔥'];
-    return emojis[Math.floor(Math.random() * emojis.length)];
+  // Get random encouraging icon
+  const getRandomIcon = () => {
+    const icons = [
+      <HiSparkles />,
+      <FaStar />,
+      <FaGem />,
+      <FaBolt />,
+      <FaBullseye />,
+      <FaTrophy />,
+      <FaAward />,
+      <FaFire />
+    ];
+    return icons[Math.floor(Math.random() * icons.length)];
+  };
+
+  // Calculate member since date from createdAt
+  const getMemberSinceDate = () => {
+    if (!user?.createdAt) return t('profile.unknown');
+
+    const createdDate = new Date(user.createdAt);
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    };
+
+    return createdDate.toLocaleDateString(undefined, options);
+  };
+
+  // Format member since display
+  const formatMemberSince = () => {
+    const daysActive = getDaysActive();
+    const memberSince = getMemberSinceDate();
+
+    if (daysActive === 0) {
+      return t('profile.joinedToday');
+    } else if (daysActive === 1) {
+      return t('profile.joinedYesterday');
+    } else if (daysActive < 30) {
+      return `${daysActive} ${t('profile.daysAgo')}`;
+    } else {
+      return memberSince;
+    }
+  };
+
+  // Convert blood type number to display format
+  const getBloodTypeDisplay = (bloodType) => {
+    if (!bloodType) return 'Not Set';
+
+    const bloodTypeMap = {
+      1: 'A',
+      2: 'B',
+      3: 'AB',
+      4: 'O'
+    };
+
+    return bloodTypeMap[bloodType] || 'Not Set';
   };
 
   return (
     <div className={styles.profileContainer}>
       {isLoading && <Loader />}
       <div className={styles.profileHeader}>
-        <div className={styles.userAvatar}>
-          <FaUser className={styles.avatarIcon} />
-          <div className={styles.avatarBadge}>
-            <FaHeart className={styles.heartIcon} />
+        <div className={styles.headerContent}>
+          <div className={styles.userAvatar}>
+            <FaUser className={styles.avatarIcon} />
           </div>
-        </div>
-        <div className={styles.userInfo}>
-          <div className={styles.welcomeContainer}>
+          <div className={styles.userInfo}>
             <h1 className={styles.welcomeTitle}>
-              <span className={styles.greeting}>{getTimeBasedGreeting()}</span>
+              <span className={styles.greeting}>
+                {getTimeBasedGreeting().icon}
+                {getTimeBasedGreeting().text}
+              </span>
               <span className={styles.userName}>{user.name}!</span>
-              <span className={styles.dynamicEmoji}>{getRandomEmoji()}</span>
             </h1>
             <p className={styles.motivationalText}>
-              {getMotivationalMessage()}
+              {getMotivationalMessage().icon}
+              {getMotivationalMessage().text}
             </p>
+            <div className={styles.userStats}>
+              <FaCrown className={styles.memberBadge} />
+              <div className={styles.membershipInfo}>
+                <HiSparkles className={styles.membershipIcon} />
+                <span>{t('profile.memberSince')}</span>
+                <span className={styles.daysCount}>{formatMemberSince()}</span>
+              </div>
+              {getDaysActive() > 0 && (
+                <div className={styles.membershipInfo}>
+                  <FaFire className={styles.membershipIcon} />
+                  <span className={styles.daysCount}>{getDaysActive()}</span>
+                  <span>{t('profile.daysActive')}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <p className={styles.userStats}>
-            <span className={styles.memberBadge}>👑</span>
-            {t('profile.memberSince')} • 
-            <span className={styles.daysCount}>
-              {enhancedUserStats.daysActive || enhancedUserStats.totalDays || 0}
-            </span> 
-            {t('profile.daysActive')}
-          </p>
         </div>
       </div>
 
       <div className={styles.tabNavigation}>
-        <button 
+        <button
           className={`${styles.tab} ${activeTab === 'overview' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           <FaChartLine /> {t('profile.overview')}
         </button>
-        <button 
+        <button
           className={`${styles.tab} ${activeTab === 'progress' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('progress')}
         >
           <FaBullseye /> {t('profile.progress')}
         </button>
-        <button 
+        <button
           className={`${styles.tab} ${activeTab === 'achievements' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('achievements')}
         >
@@ -640,89 +778,300 @@ const ProfilePage = () => {
         <div className={styles.overviewContent}>
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaFire />
-              </div>
-              <div className={styles.statInfo}>
-                <h3>{enhancedUserStats.streak || enhancedUserStats.currentStreak || 0}</h3>
-                <p>{t('profile.dayStreak')}</p>
-              </div>
-            </div>
-
-            <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaWeight />
-              </div>
-              <div className={styles.statInfo}>
-                <h3>{enhancedUserStats.weightLoss || 0} {t('profile.kg')}</h3>
-                <p>{t('profile.weightLost')}</p>
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaFire />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>{backendUserStats?.streak || activityStats?.currentStreak || userStats?.currentStreak || 0}</h3>
+                  <p>{t('profile.dayStreak')}</p>
+                </div>
               </div>
             </div>
 
             <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaBullseye />
-              </div>
-              <div className={styles.statInfo}>
-                <h3>{calculateBMI()}</h3>
-                <p>{t('profile.bmi')}</p>
-                <span className={styles.bmiCategory} style={{ color: getBMICategory(calculateBMI()).color }}>
-                  {getBMICategory(calculateBMI()).category}
-                </span>
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaWeight />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>
+                    {backendUserStats?.weightLoss ||
+                      userStats?.weightLoss ||
+                      (userInfo?.currentWeight && userInfo?.desireWeight
+                        ? Math.max(0, (userInfo.currentWeight - userInfo.desireWeight)).toFixed(1)
+                        : 0
+                      )} {t('profile.kg')}
+                  </h3>
+                  <p>{t('profile.weightLoss')}</p>
+                </div>
               </div>
             </div>
 
             <div className={styles.statCard}>
-              <div className={styles.statIcon}>
-                <FaCalendarAlt />
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaBullseye />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>{backendUserStats?.bmi || calculateBMI()}</h3>
+                  <p>{t('profile.bmi')}</p>
+                  <span className={styles.bmiCategory} style={{ color: getBMICategory(backendUserStats?.bmi || calculateBMI()).color }}>
+                    {getBMICategory(backendUserStats?.bmi || calculateBMI()).category}
+                  </span>
+                </div>
               </div>
-              <div className={styles.statInfo}>
-                <h3>{enhancedUserStats.averageDailyCalories || enhancedUserStats.averageCaloriesPerDay || userInfo?.dailyRate || 1850}</h3>
-                <p>{t('profile.avgCalories')}</p>
+            </div>
+
+            <div className={styles.statCard}>
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaCalendarAlt />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>
+                    {backendUserStats?.averageDailyCalories ||
+                      activityStats?.averageCaloriesPerDay ||
+                      userInfo?.dailyRate ||
+                      1850}
+                  </h3>
+                  <p>{t('profile.averageCalories')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.statCard}>
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaHeart />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>{backendUserStats?.daysActive || activityStats?.activeDays || 0}</h3>
+                  <p>{t('profile.daysActive')}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.statCard}>
+              <div className={styles.statCardContent}>
+                <div className={styles.statIcon}>
+                  <FaTrophy />
+                </div>
+                <div className={styles.statInfo}>
+                  <h3>{backendUserStats?.totalEntries || activityStats?.totalEntries || 0}</h3>
+                  <p>{t('profile.totalEntries')}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className={styles.userDetailsGrid}>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.email')}:</span>
-              <span className={styles.value}>{user.email}</span>
+          <div className={styles.personalInfoDashboard}>
+            {/* Dashboard Header */}
+            <div className={styles.dashboardHeader}>
+              <div className={styles.headerContent}>
+                <div className={styles.headerIcon}>
+                  <FaRocket className={styles.rocketIcon} />
+                </div>
+                <div className={styles.headerText}>
+                  <h3 className={styles.dashboardTitle}>{t('profile.personalInfo')}</h3>
+                </div>
+              </div>
+              <div className={styles.orbitalRing}>
+                <div className={styles.orbitingIcon}>
+                  <FaGem />
+                </div>
+              </div>
             </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.height')}:</span>
-              <span className={styles.value}>
-                {userInfo?.height ? `${userInfo.height} ${t('profile.cm')}` : t('profile.notSet')}
-              </span>
+
+            {/* Hexagonal Data Grid */}
+            <div className={styles.hexagonalGrid}>
+              {/* Identity Hexagon */}
+              <div className={styles.hexagonCard} data-category="identity">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaUserCircle />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Identity</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Email:</span>
+                      <span className={styles.dataValue}>{user.email}</span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Member Since:</span>
+                      <span className={styles.dataValue}>{formatMemberSince()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Physical Hexagon */}
+              <div className={styles.hexagonCard} data-category="physical">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaBalanceScale />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Physical</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Height:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.height ? `${userInfo.height} cm` : 'Not Set'}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>BMI:</span>
+                      <span className={styles.dataValue}>{calculateBMI()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Time Hexagon */}
+              <div className={styles.hexagonCard} data-category="time">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaCalendarAlt />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Temporal</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Age:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.age ? `${userInfo.age} years` : 'Not Set'}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Days Active:</span>
+                      <span className={styles.dataValue}>{getDaysActive()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Weight Hexagon */}
+              <div className={styles.hexagonCard} data-category="weight">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaWeight />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Mass</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Current:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.currentWeight ? `${userInfo.currentWeight} kg` : 'Not Set'}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Progress:</span>
+                      <span className={styles.dataValue}>{progressPercentage.toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Goal Hexagon */}
+              <div className={styles.hexagonCard} data-category="goal">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaBullseye />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Target</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Desired:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.desireWeight ? `${userInfo.desireWeight} kg` : 'Not Set'}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>To Go:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.desireWeight ? `${(userInfo.currentWeight - userInfo.desireWeight).toFixed(1)} kg` : 'Set Goal'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Health Hexagon */}
+              <div className={styles.hexagonCard} data-category="health">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaHeart />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Vitals</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Blood Type:</span>
+                      <span className={styles.dataValue}>
+                        {getBloodTypeDisplay(userInfo?.bloodType)}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Status:</span>
+                      <span className={styles.dataValue}>{getBMICategory(calculateBMI()).category}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Energy Hexagon */}
+              <div className={styles.hexagonCard} data-category="energy">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaFire />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Energy</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Daily Rate:</span>
+                      <span className={styles.dataValue}>
+                        {userInfo?.dailyRate ? `${userInfo.dailyRate} kcal` : 'Not Calculated'}
+                      </span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Efficiency:</span>
+                      <span className={styles.dataValue}>Optimal</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Hexagon */}
+              <div className={styles.hexagonCard} data-category="status">
+                <div className={styles.hexagonContent}>
+                  <div className={styles.hexagonIcon}>
+                    <FaCrown />
+                  </div>
+                  <div className={styles.hexagonData}>
+                    <h4>Status</h4>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Level:</span>
+                      <span className={styles.dataValue}>Elite User</span>
+                    </div>
+                    <div className={styles.dataPoint}>
+                      <span className={styles.dataLabel}>Rank:</span>
+                      <span className={styles.dataValue}>Platinum</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.age')}:</span>
-              <span className={styles.value}>
-                {userInfo?.age ? `${userInfo.age} ${t('profile.years')}` : t('profile.notSet')}
-              </span>
-            </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.currentWeight')}:</span>
-              <span className={styles.value}>
-                {userInfo?.currentWeight ? `${userInfo.currentWeight} ${t('profile.kg')}` : t('profile.notSet')}
-              </span>
-            </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.desiredWeight')}:</span>
-              <span className={styles.value}>
-                {userInfo?.desireWeight ? `${userInfo.desireWeight} ${t('profile.kg')}` : t('profile.notSet')}
-              </span>
-            </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.bloodType')}:</span>
-              <span className={styles.value}>
-                {userInfo?.bloodType ? t(`bloodTypes.${userInfo.bloodType}`) : t('profile.notSet')}
-              </span>
-            </div>
-            <div className={styles.userDetail}>
-              <span className={styles.label}>{t('profile.dailyCalorieRate')}:</span>
-              <span className={styles.value}>
-                {userInfo?.dailyRate ? `${userInfo.dailyRate} ${t('profile.kcal')}` : t('profile.notCalculated')}
-              </span>
+
+            {/* Dashboard Footer */}
+            <div className={styles.dashboardFooter}>
+              <div className={styles.footerContent}>
+                <div className={styles.securityBadge}>
+                  <FaLock className={styles.securityIcon} />
+                  <span>Secure Data Matrix</span>
+                </div>
+                <div className={styles.syncStatus}>
+                  <div className={styles.syncIndicator}></div>
+                  <span>Real-time Sync Active</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -738,7 +1087,7 @@ const ProfilePage = () => {
               </div>
             </div>
             <p className={styles.progressInfo}>
-              {userInfo?.desireWeight 
+              {userInfo?.desireWeight
                 ? `${(userInfo.currentWeight - userInfo.desireWeight).toFixed(1)} ${t('profile.kg')} ${t('profile.toGo')}`
                 : t('profile.setGoalFirst')
               }
@@ -747,18 +1096,24 @@ const ProfilePage = () => {
 
           <div className={styles.chartsGrid}>
             <div className={styles.chartCard}>
+              <h3>{t('profile.macroBreakdown')}</h3>
+              <div className={styles.chartContainer}>
+                <Doughnut data={macroData} options={doughnutOptions} />
+              </div>
+            </div>
+
+            <div className={styles.chartCard}>
               <h3>{t('profile.weeklyCalories')}</h3>
-              <Line data={weeklyData} options={chartOptions} />
+              <div className={styles.chartContainer}>
+                <Line data={weeklyData} options={chartOptions} />
+              </div>
             </div>
 
             <div className={styles.chartCard}>
               <h3>{t('profile.weightTrend')}</h3>
-              <Bar data={weightProgress} options={chartOptions} />
-            </div>
-
-            <div className={styles.chartCard}>
-              <h3>{t('profile.macroBreakdown')}</h3>
-              <Doughnut data={macroData} options={doughnutOptions} />
+              <div className={styles.chartContainer}>
+                <Bar data={weightProgress} options={chartOptions} />
+              </div>
             </div>
           </div>
         </div>
@@ -767,19 +1122,71 @@ const ProfilePage = () => {
       {activeTab === 'achievements' && (
         <div className={styles.achievementsContent}>
           <h3>{t('profile.yourAchievements')}</h3>
+
           <div className={styles.achievementsGrid}>
             {achievements.map((achievement) => (
-              <div 
-                key={achievement.id} 
+              <div
+                key={achievement.id}
                 className={`${styles.achievementCard} ${achievement.earned ? styles.earned : styles.locked}`}
+                data-category={achievement.category}
               >
-                <div className={styles.achievementIcon}>
-                  {achievement.earned ? achievement.icon : '🔒'}
+                <div className={styles.achievementHeader}>
+                  <div className={styles.achievementIcon}>
+                    {achievement.earned ? achievement.icon : <FaLock />}
+                  </div>
+                  <div className={styles.achievementInfo}>
+                    <h4>{t(`profile.${achievement.name}`)}</h4>
+                    <p className={styles.achievementRequirement}>
+                      {achievement.requirement}
+                    </p>
+                  </div>
+                  {achievement.earned && <FaMedal className={styles.medalIcon} />}
                 </div>
-                <h4>{t(`profile.${achievement.name}`)}</h4>
-                {achievement.earned && <FaMedal className={styles.medalIcon} />}
+                {!achievement.earned && (
+                  <div className={styles.progressSection}>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${achievement.progress}%` }}
+                      />
+                    </div>
+                    <span className={styles.progressText}>
+                      {achievement.progress}% {t('profile.complete')}
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+
+          <div className={styles.achievementGuide}>
+            <h4>{t('profile.howToUnlock')}</h4>
+            <div className={styles.guideList}>
+              <div className={styles.guideItem}>
+                <span className={styles.guideIcon}><FaCalendarCheck /></span>
+                <div className={styles.guideText}>
+                  <strong>{t('profile.dailyLogging')}:</strong> {t('profile.dailyLoggingDesc')}
+                </div>
+              </div>
+              <div className={styles.guideItem}>
+                <span className={styles.guideIcon}><FaFire /></span>
+                <div className={styles.guideText}>
+                  <strong>{t('profile.consistency')}:</strong> {t('profile.consistencyDesc')}
+                </div>
+              </div>
+              <div className={styles.guideItem}>
+                <span className={styles.guideIcon}><FaUtensils /></span>
+                <div className={styles.guideText}>
+                  <strong>{t('profile.foodTracking')}:</strong> {t('profile.foodTrackingDesc')}
+                </div>
+              </div>
+              <div className={styles.guideItem}>
+                <span className={styles.guideIcon}><FaBalanceScale /></span>
+                <div className={styles.guideText}>
+                  <strong>{t('profile.weightGoals')}:</strong> {t('profile.weightGoalsDesc')}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -787,4 +1194,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;

@@ -5,7 +5,7 @@ const CircleTitle = () => {
     return (
         <div className={style.container}>
             <CircularText
-            text="KALORIQ TEAM NODE JS "
+            text="KALORIQ TEAM"
             onHover="speedUp"
             spinDuration={20}
             className="custom-class"
