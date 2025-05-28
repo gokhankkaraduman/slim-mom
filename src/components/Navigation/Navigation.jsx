@@ -159,7 +159,7 @@ const Navigation = () => {
                 )}
 
                 {/* Mobile Hamburger Menu */}
-                {isSmallMobile || (isMobile && (isLoggedIn || isDiaryOrCalculator || location.pathname === '/profile') && safeUserName) ? (
+                {isMobile ? (
                     <>
                         <button
                             className={style.hamburgerButton}
@@ -226,8 +226,8 @@ const Navigation = () => {
                                                 </>
                                             )}
 
-                                            {/* Auth links for small mobile when not logged in */}
-                                            {isSmallMobile && !isLoggedIn && (
+                                            {/* Auth links for mobile/tablet when not logged in */}
+                                            {!isLoggedIn && (
                                                 <>
                                                     <NavLink
                                                         to='/register'
@@ -279,13 +279,6 @@ const Navigation = () => {
                         )}
                     </>
                 ) : null}
-
-                {/* Mobile Settings for non-logged in users */}
-                {isMobile && !safeUserName && !isSmallMobile && (
-                    <div className={style.mobileOnlySettings}>
-                        <Settings />
-                    </div>
-                )}
             </div>
         </header>
     );
